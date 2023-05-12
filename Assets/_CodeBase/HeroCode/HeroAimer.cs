@@ -92,7 +92,7 @@ namespace _CodeBase.HeroCode
     
     private void StartAiming()
     {
-      if (_thrower.CurrentProjectilesNumber == 0)
+      if (_thrower.CurrentProjectilesAmount == 0)
       {
         _thrower.TryThrowWithoutProjectiles();
         return;

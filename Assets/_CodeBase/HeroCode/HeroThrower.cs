@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using _CodeBase.HeroCode.Data;
+using _CodeBase.Infrastructure;
 using _CodeBase.Infrastructure.Services;
 using _CodeBase.ProjectileCode;
 using UnityEngine;
@@ -12,8 +14,9 @@ namespace _CodeBase.HeroCode
     public event Action TriedThrowWithoutProjectiles;
     public event Action<int> ProjectilesNumberChanged;
     
-    public int CurrentProjectilesNumber { get; private set; }
+    public int CurrentProjectilesAmount { get; private set; }
     
+    [SerializeField] private GameState _gameState; 
     [SerializeField] private CoroutineService _coroutineService; 
     [Space(10)]
     [SerializeField] private Projectile _projectilePrefab;
@@ -25,10 +28,15 @@ namespace _CodeBase.HeroCode
     [Space(10)] 
     [SerializeField] private HeroThrowerSettings _settings;
 
+    private List<Projectile> _projectiles = new List<Projectile>();
+    
     private void Start() => ChangeProjectilesNumber(_settings.ProjectilesNumber);
 
     private void OnEnable() => _aimer.AimingFinished += OnAimingFinish;
     private void OnDisable() => _aimer.AimingFinished -= OnAimingFinish;
+
+    private void OnDestroy() => 
+      _projectiles.ForEach(projectile => projectile.Destroyed -= OnProjectileDestroy);
 
     private void OnAimingFinish(Vector3 initialVelocity, Vector3 shooterPosition) => 
       Throw(initialVelocity, shooterPosition);
@@ -37,8 +45,8 @@ namespace _CodeBase.HeroCode
 
     private void Throw(Vector3 initialVelocity, Vector3 shooterPosition)
     {
-      if(CurrentProjectilesNumber == 0) return;
-      ChangeProjectilesNumber(CurrentProjectilesNumber - 1);
+      if(CurrentProjectilesAmount == 0) return;
+      ChangeProjectilesNumber(CurrentProjectilesAmount - 1);
       ChangeInHandShurikenVisibility(false);
       
       Vector3 createPosition = _projectileSpawnPoint.position;
@@ -48,11 +56,22 @@ namespace _CodeBase.HeroCode
       
       Projectile projectile = Instantiate(_projectilePrefab, spawnPoint, Quaternion.identity);
       projectile.Initialize(shooterPosition, initialVelocity, _coroutineService);
+
+      projectile.Destroyed += OnProjectileDestroy;
+      _projectiles.Add(projectile);
+    }
+
+    private void OnProjectileDestroy(Projectile obj)
+    {
+      obj.Destroyed -= OnProjectileDestroy;
+      
+      if(CurrentProjectilesAmount > 0) return;
+      _gameState.Lose();
     }
 
     private void ChangeProjectilesNumber(int newNumber)
     {
-      CurrentProjectilesNumber = newNumber;
+      CurrentProjectilesAmount = newNumber;
       ProjectilesNumberChanged?.Invoke(newNumber);
     }
     

@@ -7,7 +7,7 @@ namespace _CodeBase.EnemyCode
 {
   public class Enemy : MonoBehaviour
   {
-    public event Action Died;
+    public event Action<Enemy> Died;
     
     public bool Alive { get; private set; } = true;
 
@@ -44,7 +44,7 @@ namespace _CodeBase.EnemyCode
       else
         _ragdollStateController.AddForceToBody(knockBackForce);
 
-      Died?.Invoke();
+      Died?.Invoke(this);
     }
   }
 }

@@ -1,17 +1,16 @@
-﻿using System;
-using _CodeBase.Logic;
+﻿using _CodeBase.Infrastructure;
 using UnityEngine;
 
 namespace _CodeBase.HeroCode
 {
   public class Hero : MonoBehaviour
   {
-    //[SerializeField] private GameStateController _gameStateController;
+    [SerializeField] private GameState _gameState;
     [Space(10)]
     [SerializeField] private HeroAnimator _heroAnimator;
 
-    //private void OnEnable() => _gameStateController.Won += OnWin;
-    //private void OnDisable() => _gameStateController.Won -= OnWin;
+    private void OnEnable() => _gameState.Won += OnWin;
+    private void OnDisable() => _gameState.Won -= OnWin;
 
     private void OnWin() => _heroAnimator.PlayWinAnimation();
   }
