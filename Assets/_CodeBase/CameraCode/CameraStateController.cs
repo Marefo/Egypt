@@ -11,6 +11,7 @@ namespace _CodeBase.CameraCode
   public class CameraStateController : MonoBehaviour
   {
     [SerializeField] private float _followTime;
+    [SerializeField] private float _finishGameDelay;
     [Space(10)]
     [SerializeField] private CinemachineStateDrivenCamera _stateDrivenCamera;
     [SerializeField] private CinemachineVirtualCamera _projectileCamera;
@@ -22,6 +23,7 @@ namespace _CodeBase.CameraCode
     private readonly int _followProjectileHash = Animator.StringToHash("FollowProjectile");
     
     private InputService _inputService;
+    private GameState _gameState;
     private CoroutineService _coroutineService;
     private Projectile _lastProjectile;
     private Coroutine _stopFollowingCoroutine;
@@ -31,15 +33,18 @@ namespace _CodeBase.CameraCode
     {
       _coroutineService = ServiceLocator.Get<CoroutineService>();
       _inputService = ServiceLocator.Get<InputService>();
+      _gameState = ServiceLocator.Get<GameState>();
     }
 
     private void OnEnable()
     {
+      _gameState.GameFinished += OnGameFinish;
       _heroThrower.Throwed += OnThrow;
     }
 
     private void OnDisable()
     {
+      _gameState.GameFinished -= OnGameFinish;
       _heroThrower.Throwed -= OnThrow;
     }
 
@@ -49,6 +54,14 @@ namespace _CodeBase.CameraCode
         _lastProjectile.Destroyed -= OnProjectileDestroy;
     }
 
+    private void OnGameFinish()
+    {
+      if(_stopFollowingCoroutine != null)
+        StopCoroutine(_stopFollowingCoroutine);
+
+      StartCoroutine(_coroutineService.CallWithDelay(StopFollowingProjectile, _finishGameDelay));
+    }
+    
     private void OnThrow(Projectile projectile)
     {
       if(_stopFollowingCoroutine != null)

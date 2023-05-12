@@ -1,10 +1,11 @@
-﻿using _CodeBase.UI.Screens.Data;
+﻿using _CodeBase.Data;
+using _CodeBase.UI.Screens.Data;
 using DG.Tweening;
 using UnityEngine;
 
 namespace _CodeBase.UI.Screens
 {
-  public class Screen : MonoBehaviour
+  public class Screen : MonoBehaviour, ILevelSubscriber
   {
     public bool IsVisible => _visual.localScale != Vector3.zero;
     
@@ -13,6 +14,12 @@ namespace _CodeBase.UI.Screens
     [SerializeField] private ScreenSettings _settings;
 
     private Tween _openWithDelayTween;
+    
+    public void OnLevelLoad() => FastClose();
+
+    public void OnLevelExit()
+    {
+    }
     
     public virtual void OpenWithDelay()
     {

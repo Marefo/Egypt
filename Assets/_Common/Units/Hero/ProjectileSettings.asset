@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98ca043f365248c1b1f45364b3f39a70, type: 3}
   m_Name: ProjectileSettings
   m_EditorClassIdentifier: 
-  Force: 45
+  Force: 60
   LifeTime: 5
   BloodOffset: {x: 0, y: 0, z: -0.045}
   KnockBackForce: {x: 150, y: 0, z: 0}

@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Collections;
 using _CodeBase.Attributes;
+using _CodeBase.Data;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace _CodeBase.Infrastructure.Services
 {
   [AutoRegisteredService]
-  public class InputService : MonoBehaviour, IRegistrable
+  public class InputService : MonoBehaviour, IRegistrable, ILevelSubscriber
   {
     public event Action Disabled;
     public event Action TouchEntered;
@@ -18,6 +20,7 @@ namespace _CodeBase.Infrastructure.Services
 
     private InputActions _inputActions;
     private bool _touchEntered;
+    private bool _firstTouch = true;
     
     private void Awake() => _inputActions = new InputActions();
 
@@ -41,14 +44,26 @@ namespace _CodeBase.Infrastructure.Services
       UpdateTouchPosition();
     }
 
+    public void OnLevelLoad() => Enable();
+
+    public void OnLevelExit()
+    {
+    }
+
     private void OnTouchEnter(InputAction.CallbackContext ctx)
     {
       if(Enabled == false || Helpers.IsPointerOverUIObject()) return;
+      StartCoroutine(OnTouchEnterCoroutine());
+    }
+
+    private IEnumerator OnTouchEnterCoroutine()
+    {
+      yield return new WaitForEndOfFrame();
       _touchEntered = true;
       TouchStartPosition = TouchPosition;
       TouchEntered?.Invoke();
     }
-    
+
 
     private void OnTouchCancel(InputAction.CallbackContext obj)
     {
@@ -61,6 +76,7 @@ namespace _CodeBase.Infrastructure.Services
       TouchPosition = _inputActions.Game.TouchPosition.ReadValue<Vector2>();
 
     public void Enable() => Enabled = true;
+
     public void Disable()
     {
       Enabled = false;

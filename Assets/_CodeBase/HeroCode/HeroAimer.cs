@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using _CodeBase.Data;
 using _CodeBase.HeroCode.Data;
+using _CodeBase.Infrastructure;
 using _CodeBase.Infrastructure.Services;
 using _CodeBase.Logic;
 using DG.Tweening;
@@ -9,6 +10,7 @@ using DG.Tweening.Core;
 using DG.Tweening.Plugins.Options;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
+using UnityEngine.Serialization;
 using Range = _CodeBase.Data.Range;
 
 namespace _CodeBase.HeroCode
@@ -21,6 +23,10 @@ namespace _CodeBase.HeroCode
 
     public Vector2 InputForce => _inputForce;
 
+    [SerializeField] private bool _showTutorial;
+    [SerializeField] private Vector2 _tutorialInput;
+    [SerializeField] private Animator _tutorialAnimator;
+    [Space(10)]
     [SerializeField] private Transform _aimStartPoint;
     [SerializeField] private Transform _aimTopPoint;
     [SerializeField] private Transform _aimTargetPoint;
@@ -39,7 +45,8 @@ namespace _CodeBase.HeroCode
     [SerializeField] private HeroAimSettings _settings;
 
     private float _gravity => Physics.gravity.y;
-    
+
+    private GameState _gameState;
     private InputService _inputService;
     private CoroutineService _coroutineService;
     private Camera _mainCamera;
@@ -53,6 +60,7 @@ namespace _CodeBase.HeroCode
 
     private void Awake()
     {
+      _gameState = ServiceLocator.Get<GameState>();
       _inputService = ServiceLocator.Get<InputService>();
       _coroutineService = ServiceLocator.Get<CoroutineService>();
       _mainCamera = Camera.main;
@@ -67,6 +75,7 @@ namespace _CodeBase.HeroCode
       _inputService.TouchEntered += StartAiming;
       _inputService.TouchCanceled += FinishAiming;
       _inputService.Disabled += ResetAiming;
+      _gameState.TutorialPassed += OnTutorialPass;
     }
 
     private void OnDisable()
@@ -74,6 +83,16 @@ namespace _CodeBase.HeroCode
       _inputService.TouchEntered -= StartAiming;
       _inputService.TouchCanceled -= FinishAiming;
       _inputService.Disabled -= ResetAiming;
+      _gameState.TutorialPassed -= OnTutorialPass;
+    }
+
+    private void Start()
+    {
+      _showTutorial = !_gameState.IsTutorialPassed;
+      _tutorialAnimator.enabled = _showTutorial;
+      
+      if (_showTutorial)
+        TutorialStartAiming();
     }
 
     private void FixedUpdate() => TakeAim();
@@ -91,7 +110,25 @@ namespace _CodeBase.HeroCode
       _rotator.ResetRotation();
       _animator.ChangeAimingState(false);
     }
-    
+
+    private void OnTutorialPass()
+    {
+      _showTutorial = false;
+      _tutorialAnimator.enabled = false;
+    }
+
+    private void TutorialStartAiming()
+    {
+      if(_finishAimingCoroutine != null)
+        StopCoroutine(_finishAimingCoroutine);
+      
+      ChangeAimTargetVisibility(true);
+      _touchStartPosition = Vector2.zero;
+      EnableIK();
+      _rotator.Enable();
+      _animator.ChangeAimingState(true);
+    }
+
     private void StartAiming()
     {
       if (_thrower.CurrentProjectilesAmount == 0)
@@ -114,7 +151,7 @@ namespace _CodeBase.HeroCode
 
     private void FinishAiming()
     {
-      if(_isTouching == false) return;
+      if(_isTouching == false || _showTutorial) return;
       
       if(_finishAimingCoroutine != null)
         StopCoroutine(_finishAimingCoroutine);
@@ -140,8 +177,13 @@ namespace _CodeBase.HeroCode
 
     private void TakeAim()
     {
-      if(_isTouching == false) return;
-      HandleInput();
+      if(_isTouching == false && _showTutorial == false) return;
+
+      if (_showTutorial)
+        _inputForce = _tutorialInput;
+      else
+        HandleInput();
+
       UpdateAimPrediction();
       DrawPath();
       AnimateAimLine();

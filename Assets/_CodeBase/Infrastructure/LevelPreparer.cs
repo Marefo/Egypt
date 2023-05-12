@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using _CodeBase.Data;
 using _CodeBase.HeroCode;
 using _CodeBase.Infrastructure.Services;
 using _CodeBase.ProjectileCode;
@@ -16,29 +18,32 @@ namespace _CodeBase.Infrastructure
     private LoseScreen _loseScreen;
     private CrystalsCounter _crystalsCounter;
     private ProjectilesCounter _projectilesCounter;
-    private GameState _gameState;
-    
+    private List<ILevelSubscriber> _levelSubscribers = new List<ILevelSubscriber>();
+
     private void Awake()
     {
       if(ServiceLocator.Initialized == false) return;
       
-      _winScreen = ServiceLocator.Get<WinScreen>();
-      _loseScreen = ServiceLocator.Get<LoseScreen>();
-      _crystalsCounter = ServiceLocator.Get<CrystalsCounter>();
       _projectilesCounter = ServiceLocator.Get<ProjectilesCounter>();
-      _gameState = ServiceLocator.Get<GameState>();
 
-      _gameState.Reset();
-      _winScreen.FastClose();
-      _loseScreen.FastClose();
+      foreach (KeyValuePair<Type,object> pair in ServiceLocator.Services)
+      {
+        if (pair.Value is ILevelSubscriber)
+        {
+          ILevelSubscriber subscriber = (ILevelSubscriber) pair.Value;
+          _levelSubscribers.Add(subscriber);
+          subscriber.OnLevelLoad();
+        }
+      }
+      
       _projectilesCounter.SubscribeTo(_thrower);
-      _crystalsCounter.UpdateText();
     }
 
     private void OnDestroy()
     {
       if(ServiceLocator.Initialized == false) return;
       _projectilesCounter.UnSubscribe();
+      _levelSubscribers.ForEach(subscriber => subscriber.OnLevelExit());
     }
   }
 }

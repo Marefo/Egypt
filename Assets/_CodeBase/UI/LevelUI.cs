@@ -1,14 +1,25 @@
 ﻿using System;
+using _CodeBase.Attributes;
+using _CodeBase.Data;
+using _CodeBase.Infrastructure.Services;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace _CodeBase.UI
 {
-  public class LevelUI : MonoBehaviour
+  [AutoRegisteredService]
+  public class LevelUI : MonoBehaviour, IRegistrable, ILevelSubscriber
   {
     [SerializeField] private TextMeshProUGUI _textField;
     
-    private void Start() => _textField.text = SceneManager.GetActiveScene().name;
+    public void OnLevelLoad()
+    {
+      _textField.text = SceneManager.GetActiveScene().name;
+    }
+
+    public void OnLevelExit()
+    {
+    }
   }
 }

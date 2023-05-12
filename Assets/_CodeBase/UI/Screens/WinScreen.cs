@@ -1,5 +1,6 @@
 ﻿using System;
 using _CodeBase.Attributes;
+using _CodeBase.Data;
 using _CodeBase.Infrastructure;
 using _CodeBase.Infrastructure.Services;
 using DG.Tweening;
