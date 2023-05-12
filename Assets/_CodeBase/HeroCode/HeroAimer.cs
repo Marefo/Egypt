@@ -35,13 +35,13 @@ namespace _CodeBase.HeroCode
     [SerializeField] private RotatorToTarget _rotator;
     [SerializeField] private HeroThrower _thrower;
     [SerializeField] private HeroAnimator _animator;
-    [SerializeField] private InputService _inputService;
-    [SerializeField] private CoroutineService _coroutineService;
     [Space(10)] 
     [SerializeField] private HeroAimSettings _settings;
 
     private float _gravity => Physics.gravity.y;
     
+    private InputService _inputService;
+    private CoroutineService _coroutineService;
     private Camera _mainCamera;
     private Vector2 _inputForce;
     private bool _isTouching;
@@ -53,6 +53,8 @@ namespace _CodeBase.HeroCode
 
     private void Awake()
     {
+      _inputService = ServiceLocator.Get<InputService>();
+      _coroutineService = ServiceLocator.Get<CoroutineService>();
       _mainCamera = Camera.main;
       _rotator.Disable();
       ResetAimLine();

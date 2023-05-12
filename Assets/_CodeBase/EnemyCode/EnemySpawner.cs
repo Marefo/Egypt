@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using _CodeBase.Infrastructure;
+using _CodeBase.Infrastructure.Services;
 using UnityEngine;
 
 namespace _CodeBase.EnemyCode
@@ -10,10 +11,12 @@ namespace _CodeBase.EnemyCode
   {
     [SerializeField] private Transform _spawnPointsParent;
     [SerializeField] private Enemy _enemyPrefab;
-    [SerializeField] private GameState _gameState;
 
+    private GameState _gameState;
     private List<Transform> _spawnPoints = new List<Transform>();
     private List<Enemy> _enemies = new List<Enemy>();
+
+    private void Awake() => _gameState = ServiceLocator.Get<GameState>();
 
     private void Start()
     {

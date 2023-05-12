@@ -1,9 +1,12 @@
-﻿using _CodeBase.Infrastructure;
+﻿using _CodeBase.Attributes;
+using _CodeBase.Infrastructure;
+using _CodeBase.Infrastructure.Services;
 using UnityEngine;
 
 namespace _CodeBase.UI.Screens
 {
-  public class LoseScreen : Screen
+  [AutoRegisteredService]
+  public class LoseScreen : Screen, IRegistrable
   {
     [SerializeField] private GameState _gameState;
 

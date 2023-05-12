@@ -28,6 +28,12 @@ namespace _CodeBase.UI.Screens
         .SetLink(gameObject);
     }
 
+    public virtual void FastClose()
+    {
+      _visual.DOKill();
+      _visual.localScale = Vector3.zero;
+    }
+    
     public virtual void Close()
     {
       _visual.DOKill();

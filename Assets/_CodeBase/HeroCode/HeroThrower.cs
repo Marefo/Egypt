@@ -13,11 +13,10 @@ namespace _CodeBase.HeroCode
   {
     public event Action TriedThrowWithoutProjectiles;
     public event Action<int> ProjectilesNumberChanged;
-    
+    public event Action<Projectile> Throwed; 
+
     public int CurrentProjectilesAmount { get; private set; }
     
-    [SerializeField] private GameState _gameState; 
-    [SerializeField] private CoroutineService _coroutineService; 
     [Space(10)]
     [SerializeField] private Projectile _projectilePrefab;
     [Space(10)]
@@ -28,8 +27,16 @@ namespace _CodeBase.HeroCode
     [Space(10)] 
     [SerializeField] private HeroThrowerSettings _settings;
 
+    private GameState _gameState; 
+    private CoroutineService _coroutineService; 
     private List<Projectile> _projectiles = new List<Projectile>();
-    
+
+    private void Awake()
+    {
+      _gameState = ServiceLocator.Get<GameState>();
+      _coroutineService = ServiceLocator.Get<CoroutineService>();
+    }
+
     private void Start() => ChangeProjectilesNumber(_settings.ProjectilesNumber);
 
     private void OnEnable() => _aimer.AimingFinished += OnAimingFinish;
@@ -56,6 +63,7 @@ namespace _CodeBase.HeroCode
       
       Projectile projectile = Instantiate(_projectilePrefab, spawnPoint, Quaternion.identity);
       projectile.Initialize(shooterPosition, initialVelocity, _coroutineService);
+      Throwed?.Invoke(projectile);
 
       projectile.Destroyed += OnProjectileDestroy;
       _projectiles.Add(projectile);

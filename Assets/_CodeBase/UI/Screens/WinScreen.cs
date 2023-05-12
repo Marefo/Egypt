@@ -1,11 +1,14 @@
 ﻿using System;
+using _CodeBase.Attributes;
 using _CodeBase.Infrastructure;
+using _CodeBase.Infrastructure.Services;
 using DG.Tweening;
 using UnityEngine;
 
 namespace _CodeBase.UI.Screens
 {
-  public class WinScreen : Screen
+  [AutoRegisteredService]
+  public class WinScreen : Screen, IRegistrable
   {
     [SerializeField] private GameState _gameState;
 

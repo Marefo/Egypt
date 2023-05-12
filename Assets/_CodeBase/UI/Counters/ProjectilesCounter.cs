@@ -1,19 +1,23 @@
-﻿using _CodeBase.HeroCode;
+﻿using _CodeBase.Attributes;
+using _CodeBase.HeroCode;
+using _CodeBase.Infrastructure.Services;
 using UnityEngine;
 
 namespace _CodeBase.UI.Counters
 {
-  public class ProjectilesCounter : CounterUI
+  [AutoRegisteredService]
+  public class ProjectilesCounter : CounterUI, IRegistrable
   {
-    [SerializeField] private HeroThrower _thrower;
+    private HeroThrower _thrower;
 
-    private void OnEnable()
+    public void SubscribeTo(HeroThrower thrower)
     {
+      _thrower = thrower;
       _thrower.ProjectilesNumberChanged += ChangeNumber;
       _thrower.TriedThrowWithoutProjectiles += Error;
     }
 
-    private void OnDisable()
+    public void UnSubscribe()
     {
       _thrower.ProjectilesNumberChanged -= ChangeNumber;
       _thrower.TriedThrowWithoutProjectiles -= Error;

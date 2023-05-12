@@ -1,6 +1,10 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 using SystemRandom = System.Random;
 
 namespace _CodeBase.Extensions
@@ -9,6 +13,13 @@ namespace _CodeBase.Extensions
   {
     private static readonly SystemRandom rng = new SystemRandom(); 
 		
+    public static bool IsMonoBehaviour(this Type type) => typeof(MonoBehaviour).IsAssignableFrom(type);
+    
+    public static IEnumerable<Type> GetTypesWithCustomAttribute<TAttribute>(this Assembly assembly) where TAttribute : Attribute
+    {
+      return assembly.GetTypes().Where(t => t.GetCustomAttribute<TAttribute>() != null);
+    }
+    
     public static T GetRandomValue<T>(this List<T> list) => list[Random.Range(0, list.Count)];
 		
     public static List<T> Shuffle<T>(this List<T> list)

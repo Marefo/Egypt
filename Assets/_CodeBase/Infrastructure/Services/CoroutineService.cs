@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections;
+using _CodeBase.Attributes;
 using UnityEngine;
 
 namespace _CodeBase.Infrastructure.Services
 {
-  public class CoroutineService : MonoBehaviour
+  [AutoRegisteredService]
+  public class CoroutineService : MonoBehaviour, IRegistrable
   {
     private void Awake() => StopAllCoroutines();
 

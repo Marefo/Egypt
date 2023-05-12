@@ -1,10 +1,12 @@
 ﻿using System;
+using _CodeBase.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace _CodeBase.Infrastructure.Services
 {
-  public class InputService : MonoBehaviour
+  [AutoRegisteredService]
+  public class InputService : MonoBehaviour, IRegistrable
   {
     public event Action Disabled;
     public event Action TouchEntered;
